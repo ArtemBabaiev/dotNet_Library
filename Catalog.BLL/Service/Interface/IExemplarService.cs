@@ -19,5 +19,7 @@ namespace Catalog.BLL.Service.Interface
         Task UpdateAsync(ExemplarRequest request);
 
         Task DeleteAsync(long id);
+
+        Task DeleteUsingRabbitMQ(long id);
     }
 }

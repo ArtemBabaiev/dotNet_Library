@@ -6,6 +6,7 @@ using Catalog.DAL.UOW;
 using Microsoft.EntityFrameworkCore;
 using Catalog.BLL.Service;
 using Catalog.BLL.Service.Interface;
+using MassTransit;
 
 namespace Catalog.API
 {
@@ -20,6 +21,14 @@ namespace Catalog.API
             {
                 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
                 options.UseSqlServer(connectionString);
+            });
+
+
+            // MassTransit-RabbitMQ Configuration
+            builder.Services.AddMassTransit(config => {
+                config.UsingRabbitMq((ctx, cfg) => {
+                    cfg.Host(builder.Configuration["EventBusSettings:HostAddress"]);
+                });
             });
 
 

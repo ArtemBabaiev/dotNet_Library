@@ -20,7 +20,14 @@ namespace WrittenOffManagement.Application.CQRS.CommandHadler
 
         public async Task<Unit> Handle(UpdateWrittenOffCommand request, CancellationToken cancellationToken)
         {
-            await writtenOffRepository.UpdateAsync(request.WrittenOff);
+            if (await writtenOffRepository.GetByIdAsync(request.WrittenOff.Id) == null)
+            {
+                request.WrittenOff.Quantity = 0;
+                await writtenOffRepository.InsertAsync(request.WrittenOff);
+            }
+            Domain.Entities.WrittenOff writtenOff = await writtenOffRepository.GetByIdAsync(request.WrittenOff.Id);
+            writtenOff.Quantity = writtenOff.Quantity + 1;
+            await writtenOffRepository.UpdateAsync(writtenOff);
             await writtenOffRepository.SaveChangesAsync();
             return Unit.Value;
         }

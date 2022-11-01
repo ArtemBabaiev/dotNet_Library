@@ -1,6 +1,9 @@
+using EventBus.Messages.Common;
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using WrittenOffManagement.API.EventBusConsumer;
 using WrittenOffManagement.Application.CQRS.Command;
 using WrittenOffManagement.Application.CQRS.CommandHadler;
 using WrittenOffManagement.Application.CQRS.Query;
@@ -26,6 +29,19 @@ namespace WrittenOffManagement.API
             });
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            // MassTransit-RabbitMQ Configuration
+            builder.Services.AddMassTransit(config => {
+                config.AddConsumer<WriteOffExemplarConsumer>();
+                config.UsingRabbitMq((ctx, cfg) => {
+                    cfg.Host(builder.Configuration["EventBusSettings:HostAddress"]);
+
+                    cfg.ReceiveEndpoint(EventBusConstants.WriteOffExemplarQueue, c => {
+                        c.ConfigureConsumer<WriteOffExemplarConsumer>(ctx);
+                    });
+                });
+            });
+            //builder.Services.AddMassTransitHostedService();
 
             #region repositories
             builder.Services.AddScoped<IWrittenOffRepository, WrittenOffRepository>();

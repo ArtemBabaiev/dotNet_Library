@@ -143,5 +143,23 @@ namespace Catalog.API.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
+
+        // DELETE api/<ExemplarController>/5
+        [HttpDelete("rabbit/{id}", Name = "DeleteExemplarByIdRabbitMQ")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> DeleteRabbit(long id)
+        {
+            try
+            {
+                await exemplarService.DeleteUsingRabbitMQ(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
+        }
     }
 }

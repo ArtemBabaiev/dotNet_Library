@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EventBus.Messages.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace WrittenOffManagement.Application.Mapper
         {
             CreateWrittenOffMap();
             CreateEmployeeMap();
+            CreateWrritenOffEventMap();
         }
 
         public void CreateEmployeeMap()
@@ -28,6 +30,14 @@ namespace WrittenOffManagement.Application.Mapper
         {
             CreateMap<WrittenOffRequest, WrittenOff>();
             CreateMap<WrittenOff, WrittenOffResponse>();
+        }
+
+        public void CreateWrritenOffEventMap()
+        {
+            CreateMap<WriteOffExemplarEvent, WrittenOff>()
+                .ForMember(entity => entity.Id,
+                conf => conf.MapFrom(
+                    wEvent => wEvent.LiteratureId));
         }
 
     }

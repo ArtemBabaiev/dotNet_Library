@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace EventBus.Messages.Events
 {
-    public class WriteOffFormingEvent : IntegrationBaseEvent
+    public class WriteOffExemplarEvent : IntegrationBaseEvent
     {
-        public long Id { get; set; }
+        public long LiteratureId { get; set; }
         public string Name { get; set; }
         public string Isbn { get; set; }
         public int PublishingYear { get; set; }
         public int Quantity { get; set; }
-        public long AuthorId { get; set; }
-        public long  PublisherId { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public string AuthorName { get; set; }
+        public string AuthorDescription { get; set; }
+        public string PublisherName { get; set; }
+        public string PublisherDescription { get; set; }
         public long EmployeeId { get; set; }
     }
 }
