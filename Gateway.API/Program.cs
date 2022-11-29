@@ -3,6 +3,8 @@ using Gateway.API.Services.Interfaces;
 using Ocelot.DependencyInjection;
 using Ocelot.Cache.CacheManager;
 using Ocelot.Middleware;
+using Microsoft.IdentityModel.Tokens;
+using Ocelot.Values;
 
 namespace Gateway.API
 {
@@ -19,11 +21,24 @@ namespace Gateway.API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            
+
+            var authenticationProviderKey = "IdentityApiKey";
+            builder.Services.AddAuthentication()
+                 .AddJwtBearer(authenticationProviderKey, options =>
+                 {
+                     options.Authority = "https://localhost:7167";
+                     options.TokenValidationParameters = new TokenValidationParameters
+                     {
+                         ValidateAudience = false
+                     };
+                     options.RequireHttpsMetadata = false;
+                 });
+
             builder.Services.AddOcelot().AddCacheManager(x =>
             {
                 x.WithDictionaryHandle();
             });
-
             /*builder.Services.AddHttpClient<IWrittenOffService, WrittenOffService>(c =>
                     c.BaseAddress = new Uri(builder.Configuration["ApiSettings:WrittenOffUrl"]));
 
@@ -50,9 +65,6 @@ namespace Gateway.API
                 endpoints.MapControllers();
             });
 
-            app.UseAuthorization();
-
-            app.MapControllers();
 
             app.Run();
         }
