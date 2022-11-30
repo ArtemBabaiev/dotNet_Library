@@ -1,6 +1,7 @@
 ﻿
 using Aggregator.DTO;
 using Agregator.Services.Interfaces;
+using Catalog.BLL.DTO.Response;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -42,6 +43,12 @@ namespace Aggregator.Controllers
         {
             await catalogService.deleteLiterature(id);
             await recordService.deleteLiterature(id);
+        }
+
+        [HttpGet("/{id}")]
+        public async Task<LiteratureResponse> Get(long id)
+        {
+            return await catalogService.getLiteratureById(id);
         }
     }
 }
