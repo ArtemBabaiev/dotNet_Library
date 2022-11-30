@@ -6,6 +6,7 @@ using WrittenOffManagement.Application.CQRS.Query;
 using WrittenOffManagement.Application.DTO.Response;
 using WrittenOffManagement.Application.CQRS.Command;
 using WrittenOffManagement.Domain.Entities;
+using ILogger = Serilog.ILogger;
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace WrittenOffManagement.API.Controllers
@@ -17,9 +18,9 @@ namespace WrittenOffManagement.API.Controllers
 
         private readonly IMapper mapper;
         private readonly IMediator mediator;
-        private readonly ILogger<WrittenOffController> logger;
+        private readonly ILogger logger;
 
-        public WrittenOffController(IMapper mapper, IMediator mediator, ILogger<WrittenOffController> logger)
+        public WrittenOffController(IMapper mapper, IMediator mediator, ILogger logger)
         {
             this.mapper = mapper;
             this.mediator = mediator;
@@ -35,12 +36,12 @@ namespace WrittenOffManagement.API.Controllers
             try
             {
                 var result = (await mediator.Send(new GetAllWrittenOffsQuery())).Select(wo => mapper.Map<WrittenOffResponse>(wo));
-                logger.LogInformation($"Returned all writtenOffs from database.");
+                logger.Information($"Returned all writtenOffs from database.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -59,15 +60,15 @@ namespace WrittenOffManagement.API.Controllers
                     );
                 if (result == null)
                 {
-                    logger.LogError($"WrittenOff with id: {id}, hasn't been found in db.");
+                    logger.Error($"WrittenOff with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned writtenOff with id: {id}");
+                logger.Information($"Returned writtenOff with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetByIdAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetByIdAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -83,24 +84,24 @@ namespace WrittenOffManagement.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("WrittenOff object sent from client is null.");
+                    logger.Error("WrittenOff object sent from client is null.");
                     return BadRequest("WrittenOff object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid WrittenOff object sent from client.");
+                    logger.Error("Invalid WrittenOff object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 await mediator.Send(new CreateWrittenOffCommand
                 {
                     WrittenOff = mapper.Map<WrittenOff>(request)
                 });
-                logger.LogError("Created WrittenOff object in DB.");
+                logger.Error("Created WrittenOff object in DB.");
                 return Ok();
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside InsertAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside InsertAsync action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -116,12 +117,12 @@ namespace WrittenOffManagement.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("WrittenOff object sent from client is null.");
+                    logger.Error("WrittenOff object sent from client is null.");
                     return BadRequest("WrittenOff object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid WrittenOff object sent from client.");
+                    logger.Error("Invalid WrittenOff object sent from client.");
                     return BadRequest("Invalid WrittenOff object");
                 }
                 request.Id = id;
@@ -135,7 +136,7 @@ namespace WrittenOffManagement.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside UpdateAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside UpdateAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -156,7 +157,7 @@ namespace WrittenOffManagement.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }

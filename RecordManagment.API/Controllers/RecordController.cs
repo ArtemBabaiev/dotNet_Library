@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecordManagment.BLL.DTO;
 using RecordManagment.BLL.Service.Interface;
+using ILogger = Serilog.ILogger;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,10 +11,10 @@ namespace RecordManagment.API.Controllers
     [ApiController]
     public class RecordController : ControllerBase
     {
-        private readonly ILogger<RecordController> logger;
+        private readonly ILogger logger;
         private IRecordService employeeService;
 
-        public RecordController(ILogger<RecordController> logger, IRecordService employeeService)
+        public RecordController(ILogger logger, IRecordService employeeService)
         {
             this.logger = logger;
             this.employeeService = employeeService;
@@ -27,12 +28,12 @@ namespace RecordManagment.API.Controllers
             try
             {
                 var result = await employeeService.GetAllRecords();
-                logger.LogInformation($"Returned all employees from database.");
+                logger.Information($"Returned all employees from database.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside Get() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside Get() action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -46,15 +47,15 @@ namespace RecordManagment.API.Controllers
                 var result = await employeeService.GetRecordById(id);
                 if (result == null)
                 {
-                    logger.LogError($"Record with id: {id}, hasn't been found in db.");
+                    logger.Error($"Record with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned employee with id: {id}");
+                logger.Information($"Returned employee with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
 
@@ -68,12 +69,12 @@ namespace RecordManagment.API.Controllers
             {
                 if (newRecordDTO == null)
                 {
-                    logger.LogError("Record object sent from client is null.");
+                    logger.Error("Record object sent from client is null.");
                     return BadRequest("Record object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Record object sent from client.");
+                    logger.Error("Invalid Record object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 var createdRecordDTO = await employeeService.CreateRecord(newRecordDTO);
@@ -81,7 +82,7 @@ namespace RecordManagment.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside POST action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside POST action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -94,19 +95,19 @@ namespace RecordManagment.API.Controllers
             {
                 if (updateRecordDTO == null)
                 {
-                    logger.LogError("Record object sent from client is null.");
+                    logger.Error("Record object sent from client is null.");
                     return BadRequest("Record object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Record object sent from client.");
+                    logger.Error("Invalid Record object sent from client.");
                     return BadRequest("Invalid Record object");
                 }
                 updateRecordDTO.Id = id;
                 RecordDTO employeeDTO = await employeeService.UpdateRecord(updateRecordDTO);
                 if (employeeDTO == null)
                 {
-                    logger.LogError($"Record with id: {id}, hasn't been found in db.");
+                    logger.Error($"Record with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
 
@@ -114,7 +115,7 @@ namespace RecordManagment.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside Put action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside Put action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -130,7 +131,7 @@ namespace RecordManagment.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside Delete action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside Delete action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }

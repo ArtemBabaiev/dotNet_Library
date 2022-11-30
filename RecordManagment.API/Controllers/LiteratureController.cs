@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RecordManagment.BLL.DTO;
 using RecordManagment.BLL.Service.Interface;
+using ILogger = Serilog.ILogger;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,10 +11,10 @@ namespace RecordManagment.API.Controllers
     [ApiController]
     public class LiteratureController : ControllerBase
     {
-        private readonly ILogger<LiteratureController> logger;
+        private readonly ILogger logger;
         private ILiteratureService employeeService;
 
-        public LiteratureController(ILogger<LiteratureController> logger, ILiteratureService employeeService)
+        public LiteratureController(ILogger logger, ILiteratureService employeeService)
         {
             this.logger = logger;
             this.employeeService = employeeService;
@@ -27,12 +28,12 @@ namespace RecordManagment.API.Controllers
             try
             {
                 var result = await employeeService.GetAllLiterature();
-                logger.LogInformation($"Returned all employees from database.");
+                logger.Information($"Returned all employees from database.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside Get() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside Get() action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -46,15 +47,15 @@ namespace RecordManagment.API.Controllers
                 var result = await employeeService.GetLiteratureById(id);
                 if (result == null)
                 {
-                    logger.LogError($"Literature with id: {id}, hasn't been found in db.");
+                    logger.Error($"Literature with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned employee with id: {id}");
+                logger.Information($"Returned employee with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
 
@@ -68,12 +69,12 @@ namespace RecordManagment.API.Controllers
             {
                 if (newLiteratureDTO == null)
                 {
-                    logger.LogError("Literature object sent from client is null.");
+                    logger.Error("Literature object sent from client is null.");
                     return BadRequest("Literature object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Literature object sent from client.");
+                    logger.Error("Invalid Literature object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 var createdLiteratureDTO = await employeeService.CreateLiterature(newLiteratureDTO);
@@ -81,7 +82,7 @@ namespace RecordManagment.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside POST action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside POST action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -94,19 +95,19 @@ namespace RecordManagment.API.Controllers
             {
                 if (updateLiteratureDTO == null)
                 {
-                    logger.LogError("Literature object sent from client is null.");
+                    logger.Error("Literature object sent from client is null.");
                     return BadRequest("Literature object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Literature object sent from client.");
+                    logger.Error("Invalid Literature object sent from client.");
                     return BadRequest("Invalid Literature object");
                 }
                 updateLiteratureDTO.Id = id;
                 LiteratureDTO employeeDTO = await employeeService.UpdateLiterature(updateLiteratureDTO);
                 if (employeeDTO == null)
                 {
-                    logger.LogError($"Literature with id: {id}, hasn't been found in db.");
+                    logger.Error($"Literature with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
 
@@ -114,7 +115,7 @@ namespace RecordManagment.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside Put action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside Put action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -130,7 +131,7 @@ namespace RecordManagment.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside Delete action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside Delete action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
