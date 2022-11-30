@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using System.Configuration;
 using System.Reflection;
 using Duende.IdentityServer.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace Identity
 {
@@ -98,7 +99,7 @@ namespace Identity
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            DatabaseInitializer.PopulateIdentityServer(app);
+            //DatabaseInitializer.PopulateIdentityServer(app);
             app.UseHttpsRedirection();
             app.UseStaticFiles(); 
             app.UseRouting();
@@ -110,6 +111,24 @@ namespace Identity
             app.MapRazorPages()
                 .RequireAuthorization();
             app.MapControllers();
+
+            /*using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+                try
+                {
+                    //Seed Default Users
+                    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                    ApplicationDbContextSeed.SeedEssentialsAsync(userManager, roleManager).Wait();
+                }
+                catch (Exception ex)
+                {
+                    var logger = loggerFactory.CreateLogger<Program>();
+                    logger.LogError(ex, "An error occurred seeding the DB.");
+                }
+            }*/
 
             app.Run();
         }

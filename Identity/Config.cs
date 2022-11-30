@@ -1,6 +1,8 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Test;
+using IdentityModel;
+using System.Security.Claims;
 using static System.Net.WebRequestMethods;
 
 namespace Identity
@@ -44,9 +46,6 @@ namespace Identity
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                    IdentityServerConstants.StandardScopes.Email,
-                    "role",
-                    "catalgoAPI.read"
                 },
                 RequirePkce = true,
                 AllowPlainTextPkce = false

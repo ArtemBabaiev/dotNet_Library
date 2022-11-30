@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Extensions.Options;
 
 namespace WebIdentityClient
 {
@@ -10,7 +11,10 @@ namespace WebIdentityClient
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddRazorPages();
+            builder.Services.AddRazorPages(options =>
+            {
+                options.Conventions.AuthorizePage("/Privacy");
+            });
 
             builder.Services.AddAuthentication(options =>
                 {
@@ -26,13 +30,10 @@ namespace WebIdentityClient
                      options.ClientSecret = "secret";
 
                      options.ResponseType = "code";
-                     options.UsePkce = true;
-                     options.ResponseMode = "query";
-
-                     options.CallbackPath = "/signin-oidc";
-                     options.ReturnUrlParameter = "returnUrl";
                      options.Scope.Add("openid"); 
                      options.Scope.Add("profile");
+
+                     options.GetClaimsFromUserInfoEndpoint = true;
                      options.SaveTokens = true;
                  });
 
@@ -53,7 +54,6 @@ namespace WebIdentityClient
 
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapRazorPages();
 
             app.Run();
