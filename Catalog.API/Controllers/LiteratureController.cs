@@ -2,6 +2,7 @@
 using Catalog.BLL.DTO.Request;
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -11,6 +12,7 @@ namespace Catalog.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LiteratureController : ControllerBase
     {
         private readonly ILogger<LiteratureController> logger;

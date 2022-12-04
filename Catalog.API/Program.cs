@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Catalog.BLL.Service;
 using Catalog.BLL.Service.Interface;
 using MassTransit;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Catalog.API
 {
@@ -66,8 +67,13 @@ namespace Catalog.API
             builder.Services.AddScoped<IWritingService, WritingService>();
             #endregion
 
-           
 
+            builder.Services.AddAuthentication("Bearer")
+                 .AddJwtBearer("Bearer", options =>
+                 {
+                     options.Audience = "catalogAPI";
+                     options.Authority = "https://localhost:7167";
+                 });
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -85,7 +91,8 @@ namespace Catalog.API
             }
 
             app.UseHttpsRedirection();
-
+            app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseRouting();
