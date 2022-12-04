@@ -2,6 +2,8 @@
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
+using ILogger = Serilog.ILogger;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,10 +13,10 @@ namespace Catalog.API.Controllers
     [ApiController]
     public class GenreController : ControllerBase
     {
-        private readonly ILogger<GenreController> logger;
+        private readonly ILogger logger;
         private IGenreService genreService;
 
-        public GenreController(ILogger<GenreController> logger, IGenreService genreService)
+        public GenreController(ILogger logger, IGenreService genreService)
         {
             this.logger = logger;
             this.genreService = genreService;
@@ -30,12 +32,12 @@ namespace Catalog.API.Controllers
             try
             {
                 var result = await genreService.GetAsync();
-                logger.LogInformation($"Returned all genres from database.");
+                logger.Information($"Returned all genres from database.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -52,15 +54,15 @@ namespace Catalog.API.Controllers
                 var result = await genreService.GetByIdAsync(id);
                 if (result == null)
                 {
-                    logger.LogError($"Genre with id: {id}, hasn't been found in db.");
+                    logger.Error($"Genre with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned genre with id: {id}");
+                logger.Information($"Returned genre with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetByIdAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetByIdAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -76,21 +78,21 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Genre object sent from client is null.");
+                    logger.Error( "Genre object sent from client is null.");
                     return BadRequest("Genre object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Genre object sent from client.");
+                    logger.Error("Invalid Genre object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 await genreService.InsertAsync(request);
-                logger.LogError("Created Genre object in DB.");
+                logger.Error("Created Genre object in DB.");
                 return Ok();
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside InsertAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside InsertAsync action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -106,12 +108,12 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Genre object sent from client is null.");
+                    logger.Error("Genre object sent from client is null.");
                     return BadRequest("Genre object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Genre object sent from client.");
+                    logger.Error("Invalid Genre object sent from client.");
                     return BadRequest("Invalid Genre object");
                 }
                 request.Id = id;
@@ -121,7 +123,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside UpdateAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside UpdateAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -139,7 +141,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }

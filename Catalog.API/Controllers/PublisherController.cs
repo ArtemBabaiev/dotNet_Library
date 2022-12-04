@@ -2,6 +2,8 @@
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
+using ILogger = Serilog.ILogger;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,10 +13,10 @@ namespace Catalog.API.Controllers
     [ApiController]
     public class PublisherController : ControllerBase
     {
-        private readonly ILogger<PublisherController> logger;
+        private readonly ILogger logger;
         private IPublisherService publisherService;
 
-        public PublisherController(ILogger<PublisherController> logger, IPublisherService publisherService)
+        public PublisherController(ILogger logger, IPublisherService publisherService)
         {
             this.logger = logger;
             this.publisherService = publisherService;
@@ -30,12 +32,12 @@ namespace Catalog.API.Controllers
             try
             {
                 var result = await publisherService.GetAsync();
-                logger.LogInformation($"Returned all publishers from database.");
+                logger.Information($"Returned all publishers from database.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -52,15 +54,15 @@ namespace Catalog.API.Controllers
                 var result = await publisherService.GetByIdAsync(id);
                 if (result == null)
                 {
-                    logger.LogError($"Publisher with id: {id}, hasn't been found in db.");
+                    logger.Error($"Publisher with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned publisher with id: {id}");
+                logger.Information($"Returned publisher with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetByIdAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetByIdAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -76,21 +78,21 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Publisher object sent from client is null.");
+                    logger.Error("Publisher object sent from client is null.");
                     return BadRequest("Publisher object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Publisher object sent from client.");
+                    logger.Error("Invalid Publisher object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 await publisherService.InsertAsync(request);
-                logger.LogError("Created Publisher object in DB.");
+                logger.Error("Created Publisher object in DB.");
                 return Ok();
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside InsertAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside InsertAsync action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -106,12 +108,12 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Publisher object sent from client is null.");
+                    logger.Error("Publisher object sent from client is null.");
                     return BadRequest("Publisher object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Publisher object sent from client.");
+                    logger.Error("Invalid Publisher object sent from client.");
                     return BadRequest("Invalid Publisher object");
                 }
                 request.Id = id;
@@ -121,7 +123,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside UpdateAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside UpdateAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -139,7 +141,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }

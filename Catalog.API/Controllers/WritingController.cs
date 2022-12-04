@@ -2,6 +2,7 @@
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
+using ILogger = Serilog.ILogger;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,10 +12,10 @@ namespace Catalog.API.Controllers
     [ApiController]
     public class WritingController : ControllerBase
     {
-        private readonly ILogger<WritingController> logger;
+        private readonly ILogger logger;
         private IWritingService writingService;
 
-        public WritingController(ILogger<WritingController> logger, IWritingService writingService)
+        public WritingController(ILogger logger, IWritingService writingService)
         {
             this.logger = logger;
             this.writingService = writingService;
@@ -30,12 +31,12 @@ namespace Catalog.API.Controllers
             try
             {
                 var result = await writingService.GetAsync();
-                logger.LogInformation($"Returned all writings from database.");
+                logger.Information($"Returned all writings from database.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -52,15 +53,15 @@ namespace Catalog.API.Controllers
                 var result = await writingService.GetByIdAsync(id);
                 if (result == null)
                 {
-                    logger.LogError($"Writing with id: {id}, hasn't been found in db.");
+                    logger.Error($"Writing with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned writing with id: {id}");
+                logger.Information($"Returned writing with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetByIdAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetByIdAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -76,21 +77,21 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Writing object sent from client is null.");
+                    logger.Error("Writing object sent from client is null.");
                     return BadRequest("Writing object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Writing object sent from client.");
+                    logger.Error("Invalid Writing object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 await writingService.InsertAsync(request);
-                logger.LogError("Created Writing object in DB.");
+                logger.Error("Created Writing object in DB.");
                 return Ok();
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside InsertAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside InsertAsync action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -106,12 +107,12 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Writing object sent from client is null.");
+                    logger.Error("Writing object sent from client is null.");
                     return BadRequest("Writing object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Writing object sent from client.");
+                    logger.Error("Invalid Writing object sent from client.");
                     return BadRequest("Invalid Writing object");
                 }
                 request.Id = id;
@@ -121,7 +122,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside UpdateAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside UpdateAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -139,7 +140,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -155,15 +156,15 @@ namespace Catalog.API.Controllers
                 var result = await writingService.GetAllWritingsWithAuthor(authorId);
                 if (result == null)
                 {
-                    logger.LogError($"Writings with author with id: {authorId}, hasn't been found in db.");
+                    logger.Error($"Writings with author with id: {authorId}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned literature with author with id: {authorId}");
+                logger.Information($"Returned literature with author with id: {authorId}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetWithAuthor action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetWithAuthor action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }

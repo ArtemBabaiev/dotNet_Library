@@ -4,7 +4,12 @@ using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using Serilog;
+using ILogger = Serilog.ILogger;
+
 using Microsoft.Extensions.Caching.Distributed;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,11 +20,11 @@ namespace Catalog.API.Controllers
     [Authorize]
     public class LiteratureController : ControllerBase
     {
-        private readonly ILogger<LiteratureController> logger;
+        private readonly ILogger logger;
         private ILiteratureService literatureService;
         IDistributedCache cache;
 
-        public LiteratureController(ILogger<LiteratureController> logger, ILiteratureService literatureService, IDistributedCache cache)
+        public LiteratureController(ILogger logger, ILiteratureService literatureService)
         {
             this.logger = logger;
             this.literatureService = literatureService;
@@ -40,20 +45,20 @@ namespace Catalog.API.Controllers
                 IEnumerable<LiteratureResponse>? literature;
                 string recordKey = $"Literature_{DateTime.Now:yyyyMMdd_hhmm}";
                 literature = await cache.GetRecordAsync<IEnumerable<LiteratureResponse>>(recordKey);
-                logger.LogInformation($"Trying to load from cache");
+                logger.Information($"Trying to load from cache");
                 if (literature == null)
                 {
-                    logger.LogInformation($"Loading from database");
+                    logger.Information($"Loading from database");
                     literature = await literatureService.GetAsync();
                     await cache.SetRecordAsync(recordKey, literature, null, TimeSpan.FromSeconds(60));
                 }
 
-                logger.LogInformation($"Returned all literatures.");
+                logger.Information($"Returned all literatures.");
                 return Ok(literature);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -70,15 +75,15 @@ namespace Catalog.API.Controllers
                 var result = await literatureService.GetByIdAsync(id);
                 if (result == null)
                 {
-                    logger.LogError($"Literature with id: {id}, hasn't been found in db.");
+                    logger.Error($"Literature with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned literature with id: {id}");
+                logger.Information($"Returned literature with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetByIdAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetByIdAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -94,21 +99,21 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Literature object sent from client is null.");
+                    logger.Error ("Literature object sent from client is null.");
                     return BadRequest("Literature object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Literature object sent from client.");
+                    logger.Error("Invalid Literature object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 await literatureService.InsertAsync(request);
-                logger.LogError("Created Literature object in DB.");
+                logger.Error("Created Literature object in DB.");
                 return Ok();
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside InsertAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside InsertAsync action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -124,12 +129,12 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Literature object sent from client is null.");
+                    logger.Error("Literature object sent from client is null.");
                     return BadRequest("Literature object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Literature object sent from client.");
+                    logger.Error("Invalid Literature object sent from client.");
                     return BadRequest("Invalid Literature object");
                 }
                 request.Id = id;
@@ -139,7 +144,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside UpdateAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside UpdateAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -157,7 +162,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -176,15 +181,15 @@ namespace Catalog.API.Controllers
                 var result = await literatureService.GetAllWithAuthor(authorId);
                 if (result == null)
                 {
-                    logger.LogError($"Literature with author with id: {authorId}, hasn't been found in db.");
+                    logger.Error($"Literature with author with id: {authorId}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned literature with author with id: {authorId}");
+                logger.Information($"Returned literature with author with id: {authorId}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetWithAuthor action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetWithAuthor action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }

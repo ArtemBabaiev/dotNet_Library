@@ -2,6 +2,7 @@
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
 using Microsoft.AspNetCore.Mvc;
+using ILogger = Serilog.ILogger;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,10 +12,10 @@ namespace Catalog.API.Controllers
     [ApiController]
     public class TypeController : ControllerBase
     {
-        private readonly ILogger<TypeController> logger;
+        private readonly ILogger logger;
         private ITypeService typeService;
 
-        public TypeController(ILogger<TypeController> logger, ITypeService typeService)
+        public TypeController(ILogger logger, ITypeService typeService)
         {
             this.logger = logger;
             this.typeService = typeService;
@@ -30,12 +31,12 @@ namespace Catalog.API.Controllers
             try
             {
                 var result = await typeService.GetAsync();
-                logger.LogInformation($"Returned all types from database.");
+                logger.Information($"Returned all types from database.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -52,15 +53,15 @@ namespace Catalog.API.Controllers
                 var result = await typeService.GetByIdAsync(id);
                 if (result == null)
                 {
-                    logger.LogError($"Type with id: {id}, hasn't been found in db.");
+                    logger.Error($"Type with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned type with id: {id}");
+                logger.Information($"Returned type with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetByIdAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside GetByIdAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -76,21 +77,21 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Type object sent from client is null.");
+                    logger.Error("Type object sent from client is null.");
                     return BadRequest("Type object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Type object sent from client.");
+                    logger.Error("Invalid Type object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 await typeService.InsertAsync(request);
-                logger.LogError("Created Type object in DB.");
+                logger.Error("Created Type object in DB.");
                 return Ok();
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside InsertAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside InsertAsync action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -106,12 +107,12 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Type object sent from client is null.");
+                    logger.Error("Type object sent from client is null.");
                     return BadRequest("Type object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Type object sent from client.");
+                    logger.Error("Invalid Type object sent from client.");
                     return BadRequest("Invalid Type object");
                 }
                 request.Id = id;
@@ -121,7 +122,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside UpdateAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside UpdateAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -139,7 +140,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }

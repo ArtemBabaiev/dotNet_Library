@@ -3,7 +3,12 @@ using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
 using Catalog.DAL.Entity;
 using Microsoft.AspNetCore.Mvc;
+
+using Serilog;
+using ILogger = Serilog.ILogger;
+
 using Microsoft.Extensions.Caching.Memory;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,11 +18,12 @@ namespace Catalog.API.Controllers
     [ApiController]
     public class ExemplarController : ControllerBase
     {
-        private readonly ILogger<ExemplarController> logger;
+        private readonly ILogger logger;
         private IExemplarService exemplarService;
         private IMemoryCache cache;
 
-        public ExemplarController(ILogger<ExemplarController> logger, IExemplarService exemplarService, IMemoryCache cache)
+
+        public ExemplarController(ILogger logger, IExemplarService exemplarService)
         {
             this.logger = logger;
             this.exemplarService = exemplarService;
@@ -37,11 +43,11 @@ namespace Catalog.API.Controllers
             {
                 if (cache.TryGetValue("ExemplarList", out IEnumerable<ExemplarResponse> exemplars))
                 {
-                    logger.Log(LogLevel.Information, "Exemplar list found in cache.");
+                    logger.Information("Exemplar list found in cache.");
                 }
                 else
                 {
-                    logger.LogInformation("Exemplar list not found in cache. Fetching from database.");
+                    logger.Information("Exemplar list not found in cache. Fetching from database.");
                     exemplars = await exemplarService.GetAsync();
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                             .SetSlidingExpiration(TimeSpan.FromSeconds(60))
@@ -54,7 +60,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside GetAsync() action");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -71,15 +77,15 @@ namespace Catalog.API.Controllers
                 var result = await exemplarService.GetByIdAsync(id);
                 if (result == null)
                 {
-                    logger.LogError($"Exemplar with id: {id}, hasn't been found in db.");
+                    logger.Error($"Exemplar with id: {id}, hasn't been found in db.");
                     return NotFound();
                 }
-                logger.LogInformation($"Returned exemplar with id: {id}");
+                logger.Information($"Returned exemplar with id: {id}");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetByIdAsync action: {ex.Message}");
+                logger.Error(ex,$"Something went wrong inside GetByIdAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -95,21 +101,21 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Exemplar object sent from client is null.");
+                    logger.Error("Exemplar object sent from client is null.");
                     return BadRequest("Exemplar object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Exemplar object sent from client.");
+                    logger.Error("Invalid Exemplar object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 await exemplarService.InsertAsync(request);
-                logger.LogError("Created Exemplar object in DB.");
+                logger.Error("Created Exemplar object in DB.");
                 return Ok();
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside InsertAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside InsertAsync action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -125,12 +131,12 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Exemplar object sent from client is null.");
+                    logger.Error("Exemplar object sent from client is null.");
                     return BadRequest("Exemplar object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Exemplar object sent from client.");
+                    logger.Error("Invalid Exemplar object sent from client.");
                     return BadRequest("Invalid Exemplar object");
                 }
                 request.Id = id;
@@ -140,7 +146,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside UpdateAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside UpdateAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -158,7 +164,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -176,7 +182,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }

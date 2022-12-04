@@ -1,8 +1,8 @@
 ﻿using Catalog.BLL.DTO.Request;
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
-using Catalog.DAL.Entity;
 using Microsoft.AspNetCore.Mvc;
+using ILogger = Serilog.ILogger;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,10 +12,10 @@ namespace Catalog.API.Controllers
     [ApiController]
     public class AuthorController : ControllerBase
     {
-        private readonly ILogger<AuthorController> logger;
+        private readonly ILogger logger;
         private IAuthorService authorService;
 
-        public AuthorController(ILogger<AuthorController> logger, IAuthorService authorService)
+        public AuthorController(ILogger logger, IAuthorService authorService)
         {
             this.logger = logger;
             this.authorService = authorService;
@@ -31,12 +31,12 @@ namespace Catalog.API.Controllers
             try
             {
                 var result = await authorService.GetAsync();
-                logger.LogInformation($"Returned all authors from database.");
+                logger.Information($"Returned all authors from database.");
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Transaction Failed! Something went wrong inside GetAsync() action: {ex.Message}");
+                logger.Error(ex, $"Transaction Failed! Something went wrong inside GetAsync() action");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -53,15 +53,15 @@ namespace Catalog.API.Controllers
                 var result = await authorService.GetByIdAsync(id);
                 if (result == null)
                 {
-                    logger.LogError($"Author with id: {id}, hasn't been found in db.");
+                    logger.Error("Author with id: {id}, hasn't been found in db.", id);
                     return NotFound();
                 }
-                logger.LogInformation($"Returned author with id: {id}");
+                logger.Information("Returned author with id: {id}", id);
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside GetByIdAsync action: {ex.Message}");
+                logger.Error(ex, "Something went wrong inside GetByIdAsync action with {id}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -77,21 +77,21 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Author object sent from client is null.");
+                    logger.Error("Author object sent from client is null.");
                     return BadRequest("Author object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Author object sent from client.");
+                    logger.Error("Invalid Author object sent from client.");
                     return BadRequest("Invalid model object");
                 }
                 await authorService.InsertAsync(request);
-                logger.LogError("Created Author object in DB.");
+                logger.Information("Created Author object in DB.");
                 return Ok();
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside InsertAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside InsertAsync action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -107,12 +107,12 @@ namespace Catalog.API.Controllers
             {
                 if (request == null)
                 {
-                    logger.LogError("Author object sent from client is null.");
+                    logger.Error("Author object sent from client is null.");
                     return BadRequest("Author object is null");
                 }
                 if (!ModelState.IsValid)
                 {
-                    logger.LogError("Invalid Author object sent from client.");
+                    logger.Error("Invalid Author object sent from client.");
                     return BadRequest("Invalid Author object");
                 }
                 request.Id = id;
@@ -122,7 +122,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside UpdateAsync action: {ex.Message}");
+                logger.Error(ex, $"Something went wrong inside UpdateAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
@@ -140,7 +140,7 @@ namespace Catalog.API.Controllers
             }
             catch (Exception ex)
             {
-                logger.LogError($"Something went wrong inside DeleteAsync action: {ex.Message}");
+                logger.Error($"Something went wrong inside DeleteAsync action: {ex.Message}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
             }
         }
