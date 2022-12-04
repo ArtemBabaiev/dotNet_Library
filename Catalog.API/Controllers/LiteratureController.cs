@@ -1,8 +1,10 @@
-﻿using Catalog.BLL.DTO.Request;
+﻿using Catalog.API.Cache;
+using Catalog.BLL.DTO.Request;
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,12 +17,16 @@ namespace Catalog.API.Controllers
     {
         private readonly ILogger<LiteratureController> logger;
         private ILiteratureService literatureService;
+        IDistributedCache cache;
 
-        public LiteratureController(ILogger<LiteratureController> logger, ILiteratureService literatureService)
+        public LiteratureController(ILogger<LiteratureController> logger, ILiteratureService literatureService, IDistributedCache cache)
         {
             this.logger = logger;
             this.literatureService = literatureService;
+            this.cache = cache;
         }
+
+
 
 
         // GET: api/<LiteratureController>
@@ -31,9 +37,19 @@ namespace Catalog.API.Controllers
         {
             try
             {
-                var result = await literatureService.GetAsync();
-                logger.LogInformation($"Returned all literatures from database.");
-                return Ok(result);
+                IEnumerable<LiteratureResponse>? literature;
+                string recordKey = $"Literature_{DateTime.Now:yyyyMMdd_hhmm}";
+                literature = await cache.GetRecordAsync<IEnumerable<LiteratureResponse>>(recordKey);
+                logger.LogInformation($"Trying to load from cache");
+                if (literature == null)
+                {
+                    logger.LogInformation($"Loading from database");
+                    literature = await literatureService.GetAsync();
+                    await cache.SetRecordAsync(recordKey, literature, null, TimeSpan.FromSeconds(60));
+                }
+
+                logger.LogInformation($"Returned all literatures.");
+                return Ok(literature);
             }
             catch (Exception ex)
             {
