@@ -26,6 +26,13 @@ namespace Catalog.API
             //gRPC
             builder.Services.AddGrpc();
 
+            builder.Services.AddMemoryCache();
+            //Redis
+            builder.Services.AddStackExchangeRedisCache(options => {
+                options.Configuration = builder.Configuration.GetConnectionString("Redis");
+                options.InstanceName = "dotNet_Catalog";
+            });
+
             // MassTransit-RabbitMQ Configuration
             builder.Services.AddMassTransit(config => {
                 config.UsingRabbitMq((ctx, cfg) => {
