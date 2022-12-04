@@ -1,9 +1,15 @@
-﻿using Catalog.BLL.DTO.Request;
+﻿using Catalog.API.Cache;
+using Catalog.BLL.DTO.Request;
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Serilog;
 using ILogger = Serilog.ILogger;
+
+using Microsoft.Extensions.Caching.Distributed;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,16 +17,21 @@ namespace Catalog.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LiteratureController : ControllerBase
     {
         private readonly ILogger logger;
         private ILiteratureService literatureService;
+        IDistributedCache cache;
 
         public LiteratureController(ILogger logger, ILiteratureService literatureService)
         {
             this.logger = logger;
             this.literatureService = literatureService;
+            this.cache = cache;
         }
+
+
 
 
         // GET: api/<LiteratureController>
@@ -31,9 +42,19 @@ namespace Catalog.API.Controllers
         {
             try
             {
-                var result = await literatureService.GetAsync();
-                logger.Information($"Returned all literatures from database.");
-                return Ok(result);
+                IEnumerable<LiteratureResponse>? literature;
+                string recordKey = $"Literature_{DateTime.Now:yyyyMMdd_hhmm}";
+                literature = await cache.GetRecordAsync<IEnumerable<LiteratureResponse>>(recordKey);
+                logger.Information($"Trying to load from cache");
+                if (literature == null)
+                {
+                    logger.Information($"Loading from database");
+                    literature = await literatureService.GetAsync();
+                    await cache.SetRecordAsync(recordKey, literature, null, TimeSpan.FromSeconds(60));
+                }
+
+                logger.Information($"Returned all literatures.");
+                return Ok(literature);
             }
             catch (Exception ex)
             {

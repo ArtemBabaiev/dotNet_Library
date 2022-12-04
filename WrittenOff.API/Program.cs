@@ -48,6 +48,10 @@ namespace WrittenOffManagement.API
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
+            //gRPC
+            builder.Services.AddGrpc();
+
+
             // MassTransit-RabbitMQ Configuration
             builder.Services.AddMassTransit(config => {
                 config.AddConsumer<WriteOffExemplarConsumer>();
@@ -102,7 +106,11 @@ namespace WrittenOffManagement.API
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapGrpcService<Services.WritenOffGrpcService>();
+            });
 
             app.MapControllers();
 

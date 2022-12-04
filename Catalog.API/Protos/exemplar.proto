@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Catalog.API.Protos";
+
+service Exemplar{
+	rpc DeleteExemplarById(DeleteExemplarByIdRequest) returns (google.protobuf.Empty);
+	rpc GetExemplarById(GetExemplarByIdRequest) returns (ExemplarModel);
+}
+message DeleteExemplarByIdRequest{
+	int64 id = 1;
+}
+
+message GetExemplarByIdRequest{
+	int64 id = 1;
+}
+
+message ExemplarModel{
+	int64 id  = 1;
+	int64 literatureId = 2;
+	google.protobuf.Timestamp createdAt = 3;
+	google.protobuf.Timestamp updatedAt = 4;
+	bool IsLend = 5;
+}

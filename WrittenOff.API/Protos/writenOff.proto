@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "WrittenOffManagement.API.Protos";
+
+service WrittenOff{
+	rpc CreateWrittenOff(ExemplarRequest) returns (WrittenOffModel);
+}
+
+message ExemplarRequest{
+	int64 id = 1;
+    int64 literatureId = 2;
+    string name = 3;
+    string isbn = 4;
+    int32 publishingYear = 5;
+    string authorName = 6; 
+    string authorDescription = 7; 
+    string publisherName = 8; 
+    string publisherDescription = 9; 
+}
+
+
+message WrittenOffModel{
+    int64 id = 1; 
+    string name = 2;
+    string isbn = 3;
+    int32 publishingYear = 4;
+    int32 quantity = 5;
+    string authorName = 6; 
+    string authorDescription = 7; 
+    string publisherName = 8; 
+    string publisherDescription = 9; 
+    google.protobuf.Timestamp createdAt = 10;
+    google.protobuf.Timestamp updatedAt = 11;
+    int64 employeeId = 12; 
+}

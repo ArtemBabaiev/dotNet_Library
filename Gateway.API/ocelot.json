@@ -12,6 +12,10 @@
       ],
       "UpstreamPathTemplate": "/catalog",
       "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityApiKey",
+        "AllowedScopes": [ "catalgoAPI.read" ]
+      },
       "RateLimitOptions": {
         "ClientWhitelist": [],
         "EnableRateLimiting": true,
@@ -105,7 +109,27 @@
         }
       ],
       "UpstreamPathTemplate": "/writtenOffs",
-      "UpstreamHttpMethod": [ "POST", "GET" ]
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityApiKey",
+        "AllowedScopes": [ "writtenOffAPI.read" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/WrittenOff",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7146
+        }
+      ],
+      "UpstreamPathTemplate": "/writtenOffs",
+      "UpstreamHttpMethod": [ "POST" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityApiKey",
+        "AllowedScopes": [ "writtenOffAPI.write" ]
+      }
     },
     {
       "DownstreamPathTemplate": "/api/WrittenOff/{id}",
@@ -117,7 +141,27 @@
         }
       ],
       "UpstreamPathTemplate": "/writtenOffs/{id}",
-      "UpstreamHttpMethod": [ "GET", "DELETE" ]
+      "UpstreamHttpMethod": [ "GET" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityApiKey",
+        "AllowedScopes": [ "writtenOffAPI.read" ]
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/WrittenOff/{id}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7146
+        }
+      ],
+      "UpstreamPathTemplate": "/writtenOffs/{id}",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "IdentityApiKey",
+        "AllowedScopes": [ "writtenOffAPI.write" ]
+      }
     },
 
     //WRITTEN OFF AGREGATOR

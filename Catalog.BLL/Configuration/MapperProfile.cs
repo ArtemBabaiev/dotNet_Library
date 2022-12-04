@@ -82,7 +82,5 @@ namespace Catalog.BLL.Configuration
             CreateMap<WritingRequest, Writing>();
             CreateMap<Writing, WritingResponse>();
         }
-
-
     }
 }

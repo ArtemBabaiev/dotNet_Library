@@ -1,9 +1,14 @@
 ﻿using Catalog.BLL.DTO.Request;
 using Catalog.BLL.DTO.Response;
 using Catalog.BLL.Service.Interface;
+using Catalog.DAL.Entity;
 using Microsoft.AspNetCore.Mvc;
+
 using Serilog;
 using ILogger = Serilog.ILogger;
+
+using Microsoft.Extensions.Caching.Memory;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,12 +20,17 @@ namespace Catalog.API.Controllers
     {
         private readonly ILogger logger;
         private IExemplarService exemplarService;
+        private IMemoryCache cache;
+
 
         public ExemplarController(ILogger logger, IExemplarService exemplarService)
         {
             this.logger = logger;
             this.exemplarService = exemplarService;
+            this.cache = cache;
         }
+
+
 
 
         // GET: api/<ExemplarController>
@@ -31,9 +41,22 @@ namespace Catalog.API.Controllers
         {
             try
             {
-                var result = await exemplarService.GetAsync();
-                logger.Information($"Returned all exemplars from database.");
-                return Ok(result);
+                if (cache.TryGetValue("ExemplarList", out IEnumerable<ExemplarResponse> exemplars))
+                {
+                    logger.Information("Exemplar list found in cache.");
+                }
+                else
+                {
+                    logger.Information("Exemplar list not found in cache. Fetching from database.");
+                    exemplars = await exemplarService.GetAsync();
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                            .SetSlidingExpiration(TimeSpan.FromSeconds(60))
+                            .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))
+                            .SetPriority(CacheItemPriority.Normal)
+                            .SetSize(1024);
+                    cache.Set("ExemplarList", exemplars, cacheEntryOptions);
+                }
+                return Ok(exemplars);
             }
             catch (Exception ex)
             {
