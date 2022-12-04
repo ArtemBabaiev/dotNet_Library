@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "Catalog.API.Protos";
+
+service Literature{
+	rpc GetLiteratureById(GetLiteratureByIdRequest) returns (LiteratureModel);
+	rpc GetAllLiterature(GetAllLiteratureRequest) returns (stream LiteratureModel);
+}
+
+message GetLiteratureByIdRequest{
+	int64 literatureId = 1;
+}
+message GetAllLiteratureRequest{
+
+}
+
+message LiteratureModel{
+	int64 id = 1;
+    google.protobuf.Timestamp createdAt = 2;
+    google.protobuf.Timestamp updatedAt = 3; 
+    string description  = 4;
+    string isbn = 5;
+    string name = 6; 
+    int32 numberOfPages = 7;
+    int32 publishingYear = 8;
+    string publisherName = 9;
+    string publisherDescription = 10;
+    string authorName = 11;
+    string authorDescription = 12;
+    int64 genreId = 13;
+    int64 typeId = 14;
+    bool isLendable = 15;
+    int32 lendPeriodInDays = 16; 
+}

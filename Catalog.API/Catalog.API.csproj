@@ -7,8 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\exemplar.proto" />
+    <None Remove="Protos\literature.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.21.9" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.49.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.50.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="MassTransit" Version="8.0.7" />
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.7" />
@@ -23,6 +35,11 @@
     <ProjectReference Include="..\Catalog.BLL\Catalog.BLL.csproj" />
     <ProjectReference Include="..\Catalog.DAL\Catalog.DAL.csproj" />
     <ProjectReference Include="..\EventBus.Messages\EventBus.Messages.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\exemplar.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos\literature.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>
