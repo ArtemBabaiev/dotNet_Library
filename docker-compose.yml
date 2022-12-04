@@ -1,0 +1,60 @@
+version: '3.4'
+
+services:
+  aggregator.grpc:
+    image: ${DOCKER_REGISTRY-}aggregatorgrpc
+    build:
+      context: .
+      dockerfile: Aggregator.gRPC/Dockerfile
+    
+  agregator:
+    image: ${DOCKER_REGISTRY-}agregator
+    build:
+      context: .
+      dockerfile: Agregator/Dockerfile
+
+  catalog.api:
+    image: ${DOCKER_REGISTRY-}catalogapi
+    build:
+      context: .
+      dockerfile: Catalog.API/Dockerfile
+
+  identity:
+    image: ${DOCKER_REGISTRY-}identity
+    build:
+      context: .
+      dockerfile: Identity/Dockerfile
+
+  recordmanagment.api:
+    image: ${DOCKER_REGISTRY-}recordmanagmentapi
+    build:
+      context: .
+      dockerfile: RecordManagment.API/Dockerfile
+
+  writtenoffmanagement.api:
+    image: ${DOCKER_REGISTRY-}writtenoffmanagementapi
+    build:
+      context: .
+      dockerfile: WrittenOff.API/Dockerfile
+
+  gateway.api:
+    image: ${DOCKER_REGISTRY-}gatewayapi
+    build:
+      context: .
+      dockerfile: Gateway.API/Dockerfile
+
+  library-db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  redis-chache:
+    image: redis
+
+  rabbitmq:
+    image: rabbitmq:3-management
+   
+  elasticsearch:
+      image: docker.elastic.co/elasticsearch/elasticsearch:7.9.2
+  
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.9.2
+  

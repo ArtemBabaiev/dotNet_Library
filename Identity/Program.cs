@@ -94,16 +94,15 @@ namespace Identity
 
             var app = builder.Build();
             // Configure the HTTP request pipeline.
-           if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            //DatabaseInitializer.PopulateIdentityServer(app);
             app.UseHttpsRedirection();
-            app.UseStaticFiles(); 
+            app.UseStaticFiles();
             app.UseRouting();
-            app.UseIdentityServer(); 
+            app.UseIdentityServer();
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -112,7 +111,9 @@ namespace Identity
                 .RequireAuthorization();
             app.MapControllers();
 
-            /*using (var scope = app.Services.CreateScope())
+            DatabaseInitializer.PopulateIdentityServer(app);
+
+            using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
                 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
@@ -128,8 +129,7 @@ namespace Identity
                     var logger = loggerFactory.CreateLogger<Program>();
                     logger.LogError(ex, "An error occurred seeding the DB.");
                 }
-            }*/
-
+            }
             app.Run();
         }
     }

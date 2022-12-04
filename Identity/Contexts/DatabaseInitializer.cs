@@ -16,45 +16,49 @@ namespace Identity.Contexts
 
             context.Database.Migrate();
 
-            foreach (var client in Config.Clients)
+            try
             {
-                var item = context.Clients.SingleOrDefault(c => c.ClientId == client.ClientId);
-
-                if (item == null)
+                foreach (var client in Config.Clients)
                 {
-                    context.Clients.Add(client.ToEntity());
+                    var item = context.Clients.SingleOrDefault(c => c.ClientId == client.ClientId);
+
+                    if (item == null)
+                    {
+                        context.Clients.Add(client.ToEntity());
+                    }
+                }
+
+                foreach (var resource in Config.ApiResources)
+                {
+                    var item = context.ApiResources.SingleOrDefault(c => c.Name == resource.Name);
+
+                    if (item == null)
+                    {
+                        context.ApiResources.Add(resource.ToEntity());
+                    }
+                }
+
+                foreach (var scope in Config.ApiScopes)
+                {
+                    var item = context.ApiScopes.SingleOrDefault(c => c.Name == scope.Name);
+
+                    if (item == null)
+                    {
+                        context.ApiScopes.Add(scope.ToEntity());
+                    }
+                }
+
+                foreach (var resource in Config.IdentityResources)
+                {
+                    var item = context.IdentityResources.SingleOrDefault(c => c.Name == resource.Name);
+
+                    if (item == null)
+                    {
+                        context.IdentityResources.Add(resource.ToEntity());
+                    }
                 }
             }
-
-            foreach (var resource in Config.ApiResources)
-            {
-                var item = context.ApiResources.SingleOrDefault(c => c.Name == resource.Name);
-
-                if (item == null)
-                {
-                    context.ApiResources.Add(resource.ToEntity());
-                }
-            }
-
-            foreach (var scope in Config.ApiScopes)
-            {
-                var item = context.ApiScopes.SingleOrDefault(c => c.Name == scope.Name);
-
-                if (item == null)
-                {
-                    context.ApiScopes.Add(scope.ToEntity());
-                }
-            }
-
-            foreach (var resource in Config.IdentityResources)
-            {
-                var item = context.IdentityResources.SingleOrDefault(c => c.Name == resource.Name);
-
-                if (item == null)
-                {
-                    context.IdentityResources.Add(resource.ToEntity());
-                }
-            }
+            catch (Exception e){}
             context.SaveChanges();
         }
     }

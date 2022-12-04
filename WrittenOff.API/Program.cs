@@ -104,16 +104,30 @@ namespace WrittenOffManagement.API
             }
 
             app.UseHttpsRedirection();
+            app.UseRouting();
 
             app.UseAuthorization();
-            app.UseRouting();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<Services.WritenOffGrpcService>();
             });
 
             app.MapControllers();
-
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<dotNet_WrittenOffManagmentContext>();
+                    if (context.Database.GetPendingMigrations().Any())
+                    {
+                        context.Database.Migrate();
+                    }
+                }
+                catch(Exception e) { }
+                
+            }
             app.Run();
         }
     }

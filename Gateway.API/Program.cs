@@ -30,7 +30,7 @@ namespace Gateway.API
             builder.Services.AddAuthentication()
                  .AddJwtBearer(authenticationProviderKey, options =>
                  {
-                     options.Authority = "https://localhost:7167";
+                     options.Authority = builder.Configuration["Identity:Authority"];
                      options.TokenValidationParameters = new TokenValidationParameters
                      {
                          ValidateAudience = false

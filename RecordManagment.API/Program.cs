@@ -44,7 +44,7 @@ namespace RecordManagment.API
 
             #region connection
             builder.Services.AddScoped((s) => new SqlConnection(
-                "Data Source=DESKTOP-FJFPA91;Initial Catalog=dotNet_RecordManagment;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
+                builder.Configuration["ConnectionStrings:DefaultConnection"]
                 ));
             builder.Services.AddScoped<IDbTransaction>(s =>
             {

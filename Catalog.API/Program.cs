@@ -85,13 +85,12 @@ namespace Catalog.API
             builder.Services.AddScoped<ITypeService, TypeService>();
             builder.Services.AddScoped<IWritingService, WritingService>();
             #endregion
-
-
             builder.Services.AddAuthentication("Bearer")
                  .AddJwtBearer("Bearer", options =>
                  {
                      options.Audience = "catalogAPI";
-                     options.Authority = "https://localhost:7167";
+                     options.Authority = builder.Configuration["Identity:Authority"];
+                     options.RequireHttpsMetadata = false;
                  });
 
             builder.Services.AddControllers();
@@ -114,14 +113,27 @@ namespace Catalog.API
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseRouting();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<Services.LiteratureGrpcService>();
                 endpoints.MapGrpcService<Services.ExemplarGrpcService>();
             });
             app.MapControllers();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                try
+                {
+                    var context = services.GetRequiredService<dotNet_CatalogContext>();
+                    if (context.Database.GetPendingMigrations().Any())
+                    {
+                        context.Database.Migrate();
+                    }
+                }catch(Exception e) { }
+                
+            }
 
             app.Run();
         }
