@@ -5,6 +5,9 @@ using Ocelot.Cache.CacheManager;
 using Ocelot.Middleware;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.Values;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
+using System.Reflection;
 
 namespace Gateway.API
 {
@@ -39,6 +42,23 @@ namespace Gateway.API
             {
                 x.WithDictionaryHandle();
             });
+
+            builder.Host.UseSerilog((context, configuration) =>
+            {
+                configuration.Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .WriteTo.Console()
+                .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(context.Configuration["ElasticConfiguration:Uri"]))
+                {
+                    IndexFormat = $"applogs-{Assembly.GetExecutingAssembly().GetName().Name.ToLower().Replace(".", "-")}-{context.HostingEnvironment.EnvironmentName?.ToLower().Replace(".", "-")}-logs-{DateTime.UtcNow:yyyy-MM}",
+                    AutoRegisterTemplate = true,
+                    NumberOfShards = 2,
+                    NumberOfReplicas = 1
+                })
+                .Enrich.WithProperty("Enviroment", context.HostingEnvironment.EnvironmentName)
+                .ReadFrom.Configuration(context.Configuration);
+            });
+
             /*builder.Services.AddHttpClient<IWrittenOffService, WrittenOffService>(c =>
                     c.BaseAddress = new Uri(builder.Configuration["ApiSettings:WrittenOffUrl"]));
 
