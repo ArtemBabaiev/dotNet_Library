@@ -10,8 +10,8 @@ services:
     ports:
         - "1433:1433"
 
-  redis-chache:
-    container_name: redis-chache
+  redis-cache:
+    container_name: redis-cache
     restart: always
     ports:
         - "6379:6379"
@@ -67,7 +67,7 @@ services:
       - "ApiSettings:CatalogUrl=http://catalog.api"
       - "ApiSettings:RecordUrl=http://recordmanagment.api"
       - "ApiSettings:WrittenOffUrl=http://writtenoffmanagement.api"
-      - "Identity:Authority=http://identity:8005"
+      - "Identity:Authority=http://identity:80"
     ports:
       - "8010:80"
     depends_on:
@@ -96,13 +96,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:DefaultConnection=Server=library-db;Database=dotNet_Catalog;User Id=sa;Password=dotNet_Pa$$w0rd"
-      - "ConnectionStrings:Redis=redis-chache:6379"
+      - "ConnectionStrings:Redis=redis-cache:6379"
       - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
-      - "Identity:Authority=http://identity:8005"
+      - "Identity:Authority=http://identity:80"
+      - "Identity:MetadataAddress=http://identity:80/.well-known/openid-configuration"
+
     depends_on:
       - library-db
-      - redis-chache
+      - redis-cache
       - rabbitmq
       - identity
     ports:
@@ -117,6 +119,7 @@ services:
       - "JWT:Issuer=IdentityApi"
       - "JWT:Audience=IdentityApiUser"
       - "JWT:DurationInMinutes=1"
+      - "Identity:IssuerUri=http://identity:80"
     depends_on:
       - library-db
     ports:

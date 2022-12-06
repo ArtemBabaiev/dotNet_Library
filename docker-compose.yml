@@ -46,7 +46,7 @@ services:
   library-db:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
-  redis-chache:
+  redis-cache:
     image: redis
 
   rabbitmq:
