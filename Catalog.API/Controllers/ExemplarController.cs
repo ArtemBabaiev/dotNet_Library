@@ -23,7 +23,7 @@ namespace Catalog.API.Controllers
         private IMemoryCache cache;
 
 
-        public ExemplarController(ILogger logger, IExemplarService exemplarService)
+        public ExemplarController(ILogger logger, IExemplarService exemplarService, IMemoryCache cache)
         {
             this.logger = logger;
             this.exemplarService = exemplarService;

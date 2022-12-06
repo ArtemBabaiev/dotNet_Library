@@ -24,7 +24,7 @@ namespace Catalog.API.Controllers
         private ILiteratureService literatureService;
         IDistributedCache cache;
 
-        public LiteratureController(ILogger logger, ILiteratureService literatureService)
+        public LiteratureController(ILogger logger, ILiteratureService literatureService, IDistributedCache cache)
         {
             this.logger = logger;
             this.literatureService = literatureService;

@@ -23,6 +23,7 @@ namespace Identity
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Configuration.AddEnvironmentVariables();
 
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             var migrationAssembly = typeof(Program).GetTypeInfo().Assembly.GetName().Name;
@@ -40,21 +41,26 @@ namespace Identity
                 {
                     LogoutUrl = "/Account/Logout",
                     LoginUrl = "/Account/Login",
-                    LoginReturnUrlParameter = "returnUrl"
+                    LoginReturnUrlParameter = "returnUrl",
+                    ErrorUrl = "/Home/Error"
                 };
+                options.IssuerUri = builder.Configuration["Identity:IssuerUri"];
             })
                 .AddDeveloperSigningCredential()
                 .AddAspNetIdentity<AppUser>()
-                .AddConfigurationStore(options =>
+                .AddInMemoryApiResources(Config.ApiResources)
+                .AddInMemoryApiScopes(Config.ApiScopes)
+                .AddInMemoryClients(Config.Clients)
+                .AddInMemoryIdentityResources(Config.IdentityResources)
+                /*.AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly));
                 })
                 .AddOperationalStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly));
-                })
+                })*/
                 ;
-
 
 
             // Add services to the container.
@@ -93,6 +99,10 @@ namespace Identity
 
 
             var app = builder.Build();
+            foreach (var c in builder.Configuration.AsEnumerable())
+            {
+                Console.WriteLine(c.Key + " = " + c.Value);
+            }
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -111,7 +121,7 @@ namespace Identity
                 .RequireAuthorization();
             app.MapControllers();
 
-            DatabaseInitializer.PopulateIdentityServer(app);
+            /*DatabaseInitializer.PopulateIdentityServer(app);
 
             using (var scope = app.Services.CreateScope())
             {
@@ -129,7 +139,7 @@ namespace Identity
                     var logger = loggerFactory.CreateLogger<Program>();
                     logger.LogError(ex, "An error occurred seeding the DB.");
                 }
-            }
+            }*/
             app.Run();
         }
     }

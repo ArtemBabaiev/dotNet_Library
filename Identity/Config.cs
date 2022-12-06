@@ -46,6 +46,7 @@ namespace Identity
                 {
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
+                    "catalgoAPI.read"
                 },
                 RequirePkce = true,
                 AllowPlainTextPkce = false

@@ -19,6 +19,7 @@ namespace Catalog.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Configuration.AddEnvironmentVariables();
 
             builder.Host.UseSerilog((context, configuration) =>
             {
@@ -49,7 +50,7 @@ namespace Catalog.API
             builder.Services.AddMemoryCache();
             //Redis
             builder.Services.AddStackExchangeRedisCache(options => {
-                options.Configuration = builder.Configuration.GetConnectionString("Redis");
+                options.Configuration = builder.Configuration["ConnectionStrings:Redis"];
                 options.InstanceName = "dotNet_Catalog";
             });
 
@@ -90,6 +91,7 @@ namespace Catalog.API
                  {
                      options.Audience = "catalogAPI";
                      options.Authority = builder.Configuration["Identity:Authority"];
+                     options.MetadataAddress = builder.Configuration["Identity:MetadataAddress"];
                      options.RequireHttpsMetadata = false;
                  });
 
@@ -100,9 +102,14 @@ namespace Catalog.API
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-            
-                // Configure the HTTP request pipeline.
-                if (app.Environment.IsDevelopment())
+
+            foreach (var c in builder.Configuration.AsEnumerable())
+            {
+                Console.WriteLine(c.Key + " = " + c.Value);
+            }
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
