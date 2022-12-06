@@ -28,10 +28,12 @@ namespace WebIdentityClient
                      options.Authority = "https://localhost:7167";
                      options.ClientId = "webClient";
                      options.ClientSecret = "secret";
-
+                     //options.CallbackPath = "/signin-oidc";
+                     options.ReturnUrlParameter = "returnUrl";
                      options.ResponseType = "code";
                      options.Scope.Add("openid"); 
                      options.Scope.Add("profile");
+                     options.Scope.Add("catalgoAPI.read");
 
                      options.GetClaimsFromUserInfoEndpoint = true;
                      options.SaveTokens = true;
