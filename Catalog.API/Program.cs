@@ -103,10 +103,10 @@ namespace Catalog.API
 
             var app = builder.Build();
 
-            foreach (var c in builder.Configuration.AsEnumerable())
+            /*foreach (var c in builder.Configuration.AsEnumerable())
             {
                 Console.WriteLine(c.Key + " = " + c.Value);
-            }
+            }*/
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
