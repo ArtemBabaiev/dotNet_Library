@@ -60,4 +60,4 @@ services:
 
 volumes:
   elasticsearch-data:
-  mssql-server-data:
+  sqlvolume:

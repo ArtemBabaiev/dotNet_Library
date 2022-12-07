@@ -10,7 +10,7 @@ services:
     ports:
         - "1433:1433"
     volumes:
-      - mssql-server-data:/var/opt/mssql/data
+      - sqlvolume:/var/opt/mssql
 
   redis-cache:
     container_name: redis-cache
