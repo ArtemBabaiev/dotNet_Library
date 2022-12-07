@@ -9,6 +9,8 @@ services:
     restart: always
     ports:
         - "1433:1433"
+    volumes:
+      - mssql-server-data:/var/opt/mssql/data
 
   redis-cache:
     container_name: redis-cache
@@ -32,6 +34,8 @@ services:
         - discovery.type=single-node
     ports:
         - "9200:9200"
+    volumes:
+        - elasticsearch-data:/usr/share/elasticsearch/data
    
 
   kibana:
