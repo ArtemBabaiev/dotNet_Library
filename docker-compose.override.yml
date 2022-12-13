@@ -4,7 +4,7 @@ services:
   library-db:
     container_name: library-db
     environment:
-        SA_PASSWORD: "dotNet_Pa$$w0rd"
+        MSSQL_SA_PASSWORD: "dotNet_Pa$$w0rd"
         ACCEPT_EULA: "Y"
     restart: always
     ports:
