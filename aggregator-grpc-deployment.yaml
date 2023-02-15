@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\bin\kompose.exe convert -f docker-compose.yml -f docker-compose.override.yml
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: aggregator-grpc
+  name: aggregator-grpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: aggregator-grpc
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: C:\bin\kompose.exe convert -f docker-compose.yml -f docker-compose.override.yml
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: aggregator-grpc
+    spec:
+      containers:
+        - env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Development
+            - name: gRPCSettings__CatalogUrl
+              value: http://catalog-api
+            - name: gRPCSettings__RecordUrl
+              value: http://recordmanagment-api
+            - name: gRPCSettings__WrittenOffUrl
+              value: http://writtenoffmanagement-api
+          image: mrartb/aggregatorgrpc
+          name: aggregator-grpc
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 80
+          resources: {}
+      restartPolicy: Always
+status: {}

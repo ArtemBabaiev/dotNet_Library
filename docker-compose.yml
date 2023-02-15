@@ -1,44 +1,44 @@
 version: '3.4'
 
 services:
-  aggregator.grpc:
-    image: ${DOCKER_REGISTRY-}aggregatorgrpc
+  aggregator-grpc:
+    image: mrartb/aggregatorgrpc
     build:
       context: .
       dockerfile: Aggregator.gRPC/Dockerfile
     
   agregator:
-    image: ${DOCKER_REGISTRY-}agregator
+    image: mrartb/agregator
     build:
       context: .
       dockerfile: Agregator/Dockerfile
 
-  catalog.api:
-    image: ${DOCKER_REGISTRY-}catalogapi
+  catalog-api:
+    image: mrartb/catalogapi
     build:
       context: .
       dockerfile: Catalog.API/Dockerfile
 
   identity:
-    image: ${DOCKER_REGISTRY-}identity
+    image: mrartb/identity
     build:
       context: .
       dockerfile: Identity/Dockerfile
 
-  recordmanagment.api:
-    image: ${DOCKER_REGISTRY-}recordmanagmentapi
+  recordmanagment-api:
+    image: mrartb/recordmanagmentapi
     build:
       context: .
       dockerfile: RecordManagment.API/Dockerfile
 
-  writtenoffmanagement.api:
-    image: ${DOCKER_REGISTRY-}writtenoffmanagementapi
+  writtenoffmanagement-api:
+    image: mrartb/writtenoffmanagementapi
     build:
       context: .
       dockerfile: WrittenOff.API/Dockerfile
 
-  gateway.api:
-    image: ${DOCKER_REGISTRY-}gatewayapi
+  gateway-api:
+    image: mrartb/gatewayapi
     build:
       context: .
       dockerfile: Gateway.API/Dockerfile

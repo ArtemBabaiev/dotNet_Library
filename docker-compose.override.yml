@@ -48,36 +48,35 @@ services:
         - "5601:5601"  
 
 
-  aggregator.grpc:
-    container_name: aggregator.grpc
+  aggregator-grpc:
+    container_name: aggregator-grpc
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - "gRPCSettings:CatalogUrl=http://catalog.api"
-      - "gRPCSettings:RecordUrl=http://recordmanagment.api"
-      - "gRPCSettings:WrittenOffUrl=http://writtenoffmanagement.api"
+      - "gRPCSettings:CatalogUrl=http://catalog-api"
+      - "gRPCSettings:RecordUrl=http://recordmanagment-api"
+      - "gRPCSettings:WrittenOffUrl=http://writtenoffmanagement-api"
     ports:
-      - "80"
-      - "443"
+      - "8004:80"
     depends_on:
-        - catalog.api
-        - recordmanagment.api
-        - writtenoffmanagement.api
+        - catalog-api
+        - recordmanagment-api
+        - writtenoffmanagement-api
 
-  gateway.api:
-    container_name: gateway.api
+  gateway-api:
+    container_name: gateway-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
-      - "ApiSettings:CatalogUrl=http://catalog.api"
-      - "ApiSettings:RecordUrl=http://recordmanagment.api"
-      - "ApiSettings:WrittenOffUrl=http://writtenoffmanagement.api"
+      - "ApiSettings:CatalogUrl=http://catalog-api"
+      - "ApiSettings:RecordUrl=http://recordmanagment-api"
+      - "ApiSettings:WrittenOffUrl=http://writtenoffmanagement-api"
       - "Identity:Authority=http://identity:80"
     ports:
       - "8010:80"
     depends_on:
-        - catalog.api
-        - recordmanagment.api
-        - writtenoffmanagement.api
+        - catalog-api
+        - recordmanagment-api
+        - writtenoffmanagement-api
         - identity
 
   agregator:
@@ -85,18 +84,18 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ElasticConfiguration:Uri=http://elasticsearch:9200"
-      - "ApiSettings:CatalogUrl=http://catalog.api"
-      - "ApiSettings:RecordUrl=http://recordmanagment.api"
-      - "ApiSettings:WrittenOffUrl=http://writtenoffmanagement.api"
+      - "ApiSettings:CatalogUrl=http://catalog-api"
+      - "ApiSettings:RecordUrl=http://recordmanagment-api"
+      - "ApiSettings:WrittenOffUrl=http://writtenoffmanagement-api"
     ports:
       - "8003:80"
     depends_on:
-        - catalog.api
-        - recordmanagment.api
-        - writtenoffmanagement.api
+        - catalog-api
+        - recordmanagment-api
+        - writtenoffmanagement-api
 
-  catalog.api:
-    container_name: catalog.api
+  catalog-api:
+    container_name: catalog-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:DefaultConnection=Server=library-db;Database=dotNet_Catalog;User Id=sa;Password=dotNet_Pa$$w0rd"
@@ -129,8 +128,8 @@ services:
     ports:
       - "8005:80"
 
-  recordmanagment.api:
-    container_name: recordmanagment.api
+  recordmanagment-api:
+    container_name: recordmanagment-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:DefaultConnection=Server=library-db;Database=dotNet_RecordManagment;User Id=sa;Password=dotNet_Pa$$w0rd"
@@ -140,8 +139,8 @@ services:
     ports:
       - "8001:80"
 
-  writtenoffmanagement.api:
-    container_name: writtenoffmanagement.api
+  writtenoffmanagement-api:
+    container_name: writtenoffmanagement-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings:DefaultConnection=Server=library-db;Database=dotNet_WrittenOffManagment;User Id=sa;Password=dotNet_Pa$$w0rd"

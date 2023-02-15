@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: C:\bin\kompose.exe convert -f docker-compose.yml -f docker-compose.override.yml
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: library-db
+  name: library-db
+spec:
+  ports:
+    - port: 1433
+      targetPort: 1433
+  selector:
+    io.kompose.service: library-db
+status:
+  loadBalancer: {}
