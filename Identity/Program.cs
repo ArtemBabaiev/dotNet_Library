@@ -48,18 +48,18 @@ namespace Identity
             })
                 .AddDeveloperSigningCredential()
                 .AddAspNetIdentity<AppUser>()
-                .AddInMemoryApiResources(Config.ApiResources)
+                /*.AddInMemoryApiResources(Config.ApiResources)
                 .AddInMemoryApiScopes(Config.ApiScopes)
                 .AddInMemoryClients(Config.Clients)
-                .AddInMemoryIdentityResources(Config.IdentityResources)
-                /*.AddConfigurationStore(options =>
+                .AddInMemoryIdentityResources(Config.IdentityResources)*/
+                .AddConfigurationStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly));
                 })
                 .AddOperationalStore(options =>
                 {
                     options.ConfigureDbContext = b => b.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly));
-                })*/
+                })
                 ;
 
 
@@ -121,7 +121,7 @@ namespace Identity
                 .RequireAuthorization();
             app.MapControllers();
 
-            /*DatabaseInitializer.PopulateIdentityServer(app);
+            DatabaseInitializer.PopulateIdentityServer(app);
 
             using (var scope = app.Services.CreateScope())
             {
@@ -137,9 +137,9 @@ namespace Identity
                 catch (Exception ex)
                 {
                     var logger = loggerFactory.CreateLogger<Program>();
-                    logger.LogError(ex, "An error occurred seeding the DB.");
+                    logger.LogError(ex, "An error occurred during seeding of the DB.");
                 }
-            }*/
+            }
             app.Run();
         }
     }
